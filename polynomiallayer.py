@@ -1,8 +1,6 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from sympy.polys.monomials import monomial_count
-
 import exponents
 import numpy as np
 import tensorflow as tf
@@ -12,8 +10,17 @@ degree = 10;
 variables = 3;
 
 
-#print( monomial_count(variables, degree))
+#calculating all the power of input up to the disired degree
+input = tf.placeholder(tf.float32)
+power = [tf.constant(np.repeat(1, variables), tf.float32)]
+for _ in range(degree):
+    power.append(tf.multiply(power[len(power)-1], input))
 
+#transpossing and slicing so singlepower[i] is a tensor of all powers of variable i
+transposedpower = tf.transpose(power)
+singlepowers = []
+for i in range(variables):
+    singlepowers.append(tf.slice(transposedpower,[i, 0],[1,degree+1]))
 
 #calculating the sparce matrix from the exponents
 exponent = exponents.uptodegree(variables,degree)
@@ -24,22 +31,7 @@ for i in range(variables):
         a = exponent[j][i]
         sparcematrix[i][a][j] = np.float32(1.0)
 
-
-#calculating all the power of input up to degree
-input = tf.placeholder(tf.float32)
-power = [tf.constant(np.repeat(1, variables), tf.float32)]
-
-for _ in range(degree):
-    power.append(tf.multiply(power[len(power)-1], input))
-
-transposedpower = tf.transpose(power)
-
-
-singlepowers = []
-for i in range(variables):
-    singlepowers.append(tf.slice(transposedpower,[i, 0],[1,degree+1]))
-
-
+#computing all monomials
 vectors = []
 result = np.repeat(1.0, len(exponent),)
 for i in range(variables):
