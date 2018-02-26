@@ -8,7 +8,6 @@ import tensorflow as tf
 ##parameters
 degree = 2;
 variables = 3;
-batch_size = 2;
 
 #calculating all the power of input up to the disired degree
 input = tf.placeholder(tf.float32, [None, variables])
@@ -38,7 +37,11 @@ def work (batch):
     result = np.repeat(1.0, len(exponent))
     for i in range(variables):
         result = result * tf.matmul(singlepowers[i], sparcematrix[i])
-    #result = w * result
+
+    w = tf.get_variable("weights", [len(exponent)], dtype=tf.float32,initializer=tf.initializers.random_normal)
+
+
+    result = w * result
 
     #sum monomials
     return tf.reduce_sum(result)
@@ -48,5 +51,6 @@ total = tf.map_fn(work, input)
 
 print("Graph defined")
 sess = tf.Session()
+sess.run(tf.global_variables_initializer())
 
-print(sess.run(total, feed_dict={input: [[1.2, 2.0, 3.1], [1.1, 2.2, 3.5]]}))#, input[1]: [1, 2, 3]}))
+print(sess.run(total, feed_dict={input: [[1.2, 2.0, 3.1], [1.1, 2.2, 3.5]]}))
