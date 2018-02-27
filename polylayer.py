@@ -41,11 +41,11 @@ class PolyLayer(base.Layer):
             for i in range(self._variables):
                 result = result * tf.matmul(singlepowers[i], self._sparcematrix[i])
 
-            w = tf.get_variable("weights", [len(self._exponent)], dtype=tf.float32, initializer=tf.initializers.random_normal)
-            result = w * result
-
-            # sum monomials
-            return tf.reduce_sum(result)
+            with tf.variable_scope("foo"):
+                w = tf.get_variable("weights", [len(self._exponent)], dtype=tf.float32, initializer=tf.initializers.random_normal)
+                result = w * result
+                # sum monomials
+                return tf.reduce_sum(result)
 
         output = tf.map_fn(work, input)
 

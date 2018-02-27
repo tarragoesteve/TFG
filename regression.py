@@ -13,19 +13,19 @@ import matplotlib.pyplot as plt
 from polylayer import PolyLayer
 
 # Parameters
-learning_rate = 0.01
-training_epochs = 1000
+learning_rate = 0.001
+training_epochs = 10000
 display_step = 50
-batch_size = 2
+batch_size = 25
 variables = 3
 
 # Training Data
-x = np.random.rand(1000, variables)
+x = np.random.rand(100000, variables)
 y = []
 for i in x:
-    y.append(pow(i[0], 2) * i[1] * pow(i[2], 3))
-train_X = np.asarray(x[0:500])
-train_Y = np.asarray(y[0:500])
+    y.append(pow(i[0], 1) * i[1] * pow(i[2], 1))
+train_X = np.asarray(x[0:5000])
+train_Y = np.asarray(y[0:5000])
 eval_X = x[500:1000]
 eval_Y = y[500:1000]
 
@@ -35,7 +35,7 @@ n_samples = train_X.shape[0]
 X = tf.placeholder(tf.float32)
 Y = tf.placeholder(tf.float32)
 
-mylayer = PolyLayer(variables, 2)
+mylayer = PolyLayer(variables, 3)
 
 pred = mylayer.call(X)
 
@@ -43,7 +43,7 @@ pred = mylayer.call(X)
 loss = tf.losses.mean_squared_error(Y, pred)
 
 #Delaring optimizer
-optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(loss=loss)
+optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss=loss)
 
 # Initialize the variables (i.e. assign their default value)
 init = tf.global_variables_initializer()
@@ -63,8 +63,8 @@ with tf.Session() as sess:
         # Display logs per epoch step
         if (epoch+1) % display_step == 0:
             c = sess.run(loss, feed_dict={X: train_X, Y:train_Y})
-            print("Epoch:", '%04d' % (epoch+1), "cost=", "{:.9f}".format(c))
-
+            with tf.variable_scope("foo", reuse=True):
+                print("Epoch:", '%04d' % (epoch+1), "cost=", "{:.9f}".format(c), "weights= ",sess.run(tf.get_variable("weights",use_resource=True)) )
     print("Optimization Finished!")
     training_cost = sess.run(loss, feed_dict={X: train_X, Y: train_Y})
     #print("Training cost=", training_cost, "W=", sess.run(W), "b=", sess.run(b), '\n')
