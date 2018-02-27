@@ -20,28 +20,34 @@ batch_size = 2
 variables = 3
 
 # Training Data
-x = np.asarray(np.random.rand(1000, variables))
-y = np.asarray( (lambda x: pow(x[0], 2) * x[1] * pow(x[2], 3), x))
-train_X = x[0:500]
-train_Y = y[0:500]
+x = np.random.rand(1000, variables)
+y = []
+for i in x:
+    y.append(pow(i[0], 2) * i[1] * pow(i[2], 3))
+train_X = np.asarray(x[0:500])
+train_Y = np.asarray(y[0:500])
 eval_X = x[500:1000]
 eval_Y = y[500:1000]
 
 n_samples = train_X.shape[0]
 
+#Define our model
+X = tf.placeholder(tf.float32)
+Y = tf.placeholder(tf.float32)
 
-X = tf.placeholder(tf.float32, [None,variables])
-Y = tf.placeholder(tf.float32, [None,1])
-mylayer = PolyLayer(variables,2)
-pred = mylayer.call(inputs=X)
+mylayer = PolyLayer(variables, 2)
+
+pred = mylayer.call(X)
+
 # Mean squared error
-
 loss = tf.losses.mean_squared_error(Y, pred)
+
+#Delaring optimizer
 optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(loss=loss)
 
 # Initialize the variables (i.e. assign their default value)
 init = tf.global_variables_initializer()
-
+print("Going to start session")
 # Start training
 with tf.Session() as sess:
 
@@ -51,8 +57,8 @@ with tf.Session() as sess:
     # Fit all training data
     for epoch in range(training_epochs):
         for batch in range(n_samples/batch_size):
-            X_batch = tf.reshape(train_X[batch_size*batch:batch_size*(batch+1)], [None, variables])
-            Y_batch = tf.reshape(train_Y[batch_size*batch:batch_size*(batch+1)], [None, 1])
+            X_batch = train_X[batch_size*batch:batch_size*(batch+1)]
+            Y_batch = train_Y[batch_size*batch:batch_size*(batch+1)]
             sess.run(optimizer,feed_dict={X: X_batch, Y: Y_batch})
         # Display logs per epoch step
         if (epoch+1) % display_step == 0:

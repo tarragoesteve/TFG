@@ -12,9 +12,9 @@ class PolyLayer(base.Layer):
     def build(self, _):
         pass
 
-    def call(self, inputs, **kwargs):
-        input = tf.reshape(inputs, [None, self._variables])
-
+    def call(self, input, **kwargs):
+        #aux = tf.cast(inputs, tf.float32)
+        #input = tf.reshape(aux, [None, self._variables])
         # calculating the sparce matrix from the exponents
         self._exponent = exponents.uptodegree(self._variables, self._degree)
         self._sparcematrix = [];
