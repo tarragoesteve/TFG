@@ -14,6 +14,7 @@ training_epochs = 10000
 display_step = 50
 batch_size = 25
 variables = 3
+uptodegree = 3
 
 # Training Data
 x = np.random.rand(100000, variables)
@@ -31,7 +32,7 @@ n_samples = train_X.shape[0]
 X = tf.placeholder(tf.float32)
 Y = tf.placeholder(tf.float32)
 
-mylayer = PolyLayer(variables, 3)
+mylayer = PolyLayer(variables, uptodegree)
 
 pred = mylayer.call(X)
 
