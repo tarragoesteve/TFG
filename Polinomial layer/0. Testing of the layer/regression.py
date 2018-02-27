@@ -14,6 +14,7 @@ training_epochs = 10000
 display_step = 50
 batch_size = 25
 variables = 3
+uptodegree = 3
 
 # Training Data
 x = np.random.rand(100000, variables)
@@ -31,7 +32,7 @@ n_samples = train_X.shape[0]
 X = tf.placeholder(tf.float32)
 Y = tf.placeholder(tf.float32)
 
-mylayer = PolyLayer(variables, 3)
+mylayer = PolyLayer(variables, uptodegree)
 
 pred = mylayer.call(X)
 
@@ -61,5 +62,3 @@ with tf.Session() as sess:
             c = sess.run(loss, feed_dict={X: train_X, Y:train_Y})
             with tf.variable_scope("foo", reuse=True):
                 print("Epoch:", '%04d' % (epoch+1), "cost=", "{:.9f}".format(c), "weights= ",sess.run(tf.get_variable("weights",use_resource=True)) )
-    print("Optimization Finished!")
-    training_cost = sess.run(loss, feed_dict={X: train_X, Y: train_Y})
