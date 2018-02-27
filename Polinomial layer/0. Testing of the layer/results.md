@@ -1,4 +1,4 @@
-In this experiment we were feeding our polinomial layer of 3 variables and degree 3 a generated data from x1,x2,x3 -> x1*x2*x3. As expected all other monomial weights are almost 0 and the one corresponding to this monomial ([1, 1, 1]) is almost one. Results may vary due to random initialization of the weights.
+In this experiment (regression.py) we are feeding our polynomial layer of 3 variables and degree 3 a generated data from x1,x2,x3 -> x1*x2*x3. As expected all other monomial weights are almost 0 and the one corresponding to this monomial ([1, 1, 1]) is almost one. Results may vary due to random initialization of the weights.
 
 
 
