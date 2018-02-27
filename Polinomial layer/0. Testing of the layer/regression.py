@@ -61,5 +61,3 @@ with tf.Session() as sess:
             c = sess.run(loss, feed_dict={X: train_X, Y:train_Y})
             with tf.variable_scope("foo", reuse=True):
                 print("Epoch:", '%04d' % (epoch+1), "cost=", "{:.9f}".format(c), "weights= ",sess.run(tf.get_variable("weights",use_resource=True)) )
-    print("Optimization Finished!")
-    training_cost = sess.run(loss, feed_dict={X: train_X, Y: train_Y})
