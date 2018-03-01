@@ -21,13 +21,17 @@ class Conv2DPolynomial(base.Layer):
         self._exponent = exponents.uptodegree(self._variables, self._degree)
         self._sparcematrix = [];
         self._weights = [];
-        for i in range(self._filters):
-            self._weights.append(tf.get_variable(name+"w"+str(i), [len(self._exponent)], dtype=tf.float32, initializer=tf.random_normal_initializer))
+        with tf.variable_scope("foo"):
+            for i in range(self._filters):
+                self._weights.append(tf.get_variable(name+"w"+str(i), [len(self._exponent)], dtype=tf.float32, initializer=tf.random_normal_initializer))
+
         for i in range(self._variables):
+            #tf.SparseTensor(indices=,values=np.repeat(1,),dense_shape=[len(self._exponent)])
             self._sparcematrix.append(np.zeros(((self._degree + 1), len(self._exponent)), dtype=np.dtype('float32')))
             for j in range(len(self._exponent)):
                 a = self._exponent[j][i]
                 self._sparcematrix[i][a][j] = np.float32(1.0)
+        print("Number of monomials:" +str(len(self._exponent)))
 
     def build(self, _):
         pass
@@ -83,12 +87,23 @@ class Conv2DPolynomial(base.Layer):
 
 
 
-#
-# input = tf.placeholder(dtype=tf.float32)
-# mylayer = Conv2DPolynomial()
-# output = mylayer.call(input)
-#
-# with tf.Session() as sess:
-#     # Run the initializer
-#     sess.run(tf.global_variables_initializer())
-#     print(sess.run(output,feed_dict={input:  [[[[3.1], [4.1], [5.1]], [[1.1], [2.1], [3.3]]]]}))#[[[3.1, 1.2], [4.1, 1.2], [5.1,1.2]], [[1.1,1.2], [2.1,2.2], [3.3,1.2]]]}))
+  # Input Layer
+  # Reshape X to 4-D tensor: [batch_size, width, height, channels]
+  # MNIST images are 28x28 pixels, and have one color channel
+
+X = tf.placeholder(dtype=tf.float32)
+
+input_layer = tf.reshape(X, [-1, 28, 28, 1])
+
+myconv = Conv2DPolynomial(name="conv1",filters=32, channels =1,
+                            kernel_size=[5, 5], padding="same", activation=tf.nn.relu, degree=1,
+                            final_width=28, final_height=28, input_width=28, input_height=28)# output = mylayer.call(input)
+
+print("layer created")
+output = myconv.call(input_layer)
+with tf.Session() as sess:
+# Run the initializer
+    sess.run(tf.global_variables_initializer())
+    mnist = tf.contrib.learn.datasets.load_dataset("mnist")
+    train_data = mnist.train.images  # Returns np.array
+    print(sess.run(output,feed_dict={X:  train_data[0:2]}))#[[[[3.1], [4.1], [5.1]], [[1.1], [2.1], [3.3]]]]}))#[[[3.1, 1.2], [4.1, 1.2], [5.1,1.2]], [[1.1,1.2], [2.1,2.2], [3.3,1.2]]]}))
