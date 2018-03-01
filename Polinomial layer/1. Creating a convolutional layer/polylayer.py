@@ -5,8 +5,8 @@ import exponents
 
 
 class Conv2DPolynomial(base.Layer):
-    def __init__(self, degree=1,filters=2,kernel_size=[3, 3],channels =1,
-                 padding="same",activation=tf.nn.relu):
+    def __init__(self,name="convol",degree=1,filters=2,kernel_size=[3, 3],channels =1,
+                 padding="same",activation=tf.nn.relu,final_width =5, final_height =2, input_width=3, input_height=3 ):
         self._variables = kernel_size[1] * kernel_size[0] * channels
         self._channels = channels
         self._degree = degree
@@ -14,15 +14,15 @@ class Conv2DPolynomial(base.Layer):
         self._filters = filters
         self._padding = padding
         self._activation = activation
-        self._final_width = 3
-        self._final_height = 2
-        self._input_width = 3
-        self._input_height = 3
+        self._final_width = final_width
+        self._final_height = final_height
+        self._input_width = input_width
+        self._input_height = input_height
         self._exponent = exponents.uptodegree(self._variables, self._degree)
         self._sparcematrix = [];
         self._weights = [];
         for i in range(self._filters):
-            self._weights.append(tf.get_variable("w"+str(i), [len(self._exponent)], dtype=tf.float32, initializer=tf.random_normal_initializer))
+            self._weights.append(tf.get_variable(name+"w"+str(i), [len(self._exponent)], dtype=tf.float32, initializer=tf.random_normal_initializer))
         for i in range(self._variables):
             self._sparcematrix.append(np.zeros(((self._degree + 1), len(self._exponent)), dtype=np.dtype('float32')))
             for j in range(len(self._exponent)):
@@ -74,6 +74,7 @@ class Conv2DPolynomial(base.Layer):
             for j in range(self._final_width):
                 aux.append(self._compute_filter(input, i, j))
 
+        aux = self._activation(aux)
         output = tf.reshape(aux, [self._final_height,self._final_width,self._filters])
         return output
 
@@ -82,12 +83,12 @@ class Conv2DPolynomial(base.Layer):
 
 
 
-
-input = tf.placeholder(dtype=tf.float32)
-mylayer = Conv2DPolynomial()
-output = mylayer.call(input)
-
-with tf.Session() as sess:
-    # Run the initializer
-    sess.run(tf.global_variables_initializer())
-    print(sess.run(output,feed_dict={input:  [[[[3.1], [4.1], [5.1]], [[1.1], [2.1], [3.3]]]]}))#[[[3.1, 1.2], [4.1, 1.2], [5.1,1.2]], [[1.1,1.2], [2.1,2.2], [3.3,1.2]]]}))
+#
+# input = tf.placeholder(dtype=tf.float32)
+# mylayer = Conv2DPolynomial()
+# output = mylayer.call(input)
+#
+# with tf.Session() as sess:
+#     # Run the initializer
+#     sess.run(tf.global_variables_initializer())
+#     print(sess.run(output,feed_dict={input:  [[[[3.1], [4.1], [5.1]], [[1.1], [2.1], [3.3]]]]}))#[[[3.1, 1.2], [4.1, 1.2], [5.1,1.2]], [[1.1,1.2], [2.1,2.2], [3.3,1.2]]]}))
