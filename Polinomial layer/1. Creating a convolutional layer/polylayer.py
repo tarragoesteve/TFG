@@ -5,7 +5,7 @@ import exponents
 
 
 class Conv2DPolynomial(base.Layer):
-    def __init__(self, degree=1,filters=3,kernel_size=[3, 3],channels =1,
+    def __init__(self, degree=1,filters=2,kernel_size=[3, 3],channels =1,
                  padding="same",activation=tf.nn.relu):
         self._variables = kernel_size[1] * kernel_size[0] * channels
         self._channels = channels
@@ -68,8 +68,7 @@ class Conv2DPolynomial(base.Layer):
             ret.append(tf.reduce_sum(result*w_variable))
         return ret
 
-
-    def call(self, input, **kwargs):
+    def _for_batch(self, input):
         aux = []
         for i in range(self._final_height):
             for j in range(self._final_width):
@@ -77,6 +76,9 @@ class Conv2DPolynomial(base.Layer):
 
         output = tf.reshape(aux, [self._final_height,self._final_width,self._filters])
         return output
+
+    def call(self, input, **kwargs):
+        return tf.map_fn(self._for_batch, input)
 
 
 
@@ -88,4 +90,4 @@ output = mylayer.call(input)
 with tf.Session() as sess:
     # Run the initializer
     sess.run(tf.global_variables_initializer())
-    print(sess.run(output,feed_dict={input: [[[3.1], [4.1], [5.1]], [[1.1], [2.1], [3.3]]]}))#[[[3.1, 1.2], [4.1, 1.2], [5.1,1.2]], [[1.1,1.2], [2.1,2.2], [3.3,1.2]]]}))
+    print(sess.run(output,feed_dict={input:  [[[[3.1], [4.1], [5.1]], [[1.1], [2.1], [3.3]]]]}))#[[[3.1, 1.2], [4.1, 1.2], [5.1,1.2]], [[1.1,1.2], [2.1,2.2], [3.3,1.2]]]}))
