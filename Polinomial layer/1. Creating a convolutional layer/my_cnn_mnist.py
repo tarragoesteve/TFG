@@ -37,7 +37,7 @@ def cnn_model_fn(features, labels, mode):
   # Input Tensor Shape: [batch_size, 28, 28, 1]
   # Output Tensor Shape: [batch_size, 28, 28, 32]
   myconv = Conv2DPolynomial(name="conv1",filters=32, channels =1,
-                            kernel_size=[5, 5], padding="same", activation=tf.nn.relu, degree=1,
+                            kernel_size=[5, 5], padding="same", activation=tf.nn.relu, degree=2,
                             final_width=28, final_height=28, input_width=28, input_height=28)
   conv1 = myconv.call(input_layer)
 
@@ -60,7 +60,7 @@ def cnn_model_fn(features, labels, mode):
   # Input Tensor Shape: [batch_size, 14, 14, 32]
   # Output Tensor Shape: [batch_size, 14, 14, 64]
   myconv2 = Conv2DPolynomial(filters=64,name="conv2",channels = 32, kernel_size=[5, 5], padding="same",
-                             activation=tf.nn.relu, degree=1, final_width=28, final_height=28, input_width=28, input_height=28)
+                             activation=tf.nn.relu, degree=2, final_width=28, final_height=28, input_width=28, input_height=28)
   conv2 = myconv2.call(pool1)
 
   # conv2 = tf.layers.conv2d(
