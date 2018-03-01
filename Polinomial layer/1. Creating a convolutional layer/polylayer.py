@@ -87,7 +87,7 @@ class Conv2DPolynomial(base.Layer):
 
 
 
-  # Input Layer
+  #Input Layer
   # Reshape X to 4-D tensor: [batch_size, width, height, channels]
   # MNIST images are 28x28 pixels, and have one color channel
 
