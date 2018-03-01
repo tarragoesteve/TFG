@@ -5,11 +5,11 @@ import exponents
 
 
 class Conv2DPolynomial(base.Layer):
-    def __init__(self, degree=1,filters=32,kernel_size=[5, 5],
+    def __init__(self, degree=1,filters=32,kernel_size=[3, 3],channels =1,
                  padding="same",activation=tf.nn.relu):
-        self._variables = 5
-        self._channels = 1
-        self._degree = reduce(lambda x, y: x*y, kernel_size)
+        self._variables = kernel_size[1] * kernel_size[0] * channels
+        self._channels = channels
+        self._degree = degree
         self._kernel_size = kernel_size
         self._filters = filters
         self._padding = padding
@@ -18,7 +18,6 @@ class Conv2DPolynomial(base.Layer):
         self._final_height = 2
         self._input_width = 3
         self._input_height = 3
-
         self._exponent = exponents.uptodegree(self._variables, self._degree)
         self._sparcematrix = [];
         for i in range(self._variables):
@@ -37,56 +36,43 @@ class Conv2DPolynomial(base.Layer):
         if y >= self._input_height: return False
         return True
 
-    def _compute_filter(self, input,x,y):
+    def _compute_filter(self, input,x,y,w):
         variables = []
         for i in range(x-self._kernel_size[1]/2,x+1+self._kernel_size[1]/2):
-            for j in range(y-self._kernel_size[0]/2,x+1+self._kernel_size[0]/2):
+            for j in range(y-self._kernel_size[0]/2,y+1+self._kernel_size[0]/2):
                 if self._inside_input(x,y):
                     variables.append(input[x][y][:])
                 else:
                     variables.append(np.repeat(0,self._channels))
-        #TODO: _compute_monomials variables.flatten()
-        return input[0][0]
+        flatvar = tf.reshape(variables,[-1])
+        # calculating all the power of input up to degree
+        power = [tf.constant(np.repeat(1, self._variables), tf.float32)]
+        for _ in range(self._degree):
+            power.append(tf.multiply(power[len(power) - 1], flatvar))
+
+        # transpose and slice
+        transposedpower = tf.transpose(power)
+        singlepowers = []
+        for i in range(self._variables):
+            singlepowers.append(tf.slice(transposedpower, [i, 0], [1, self._degree + 1]))
+
+        # compute monomials
+        result = np.repeat(1.0, len(self._exponent))
+        for i in range(self._variables):
+            result = result * tf.matmul(singlepowers[i], self._sparcematrix[i])
+        result = w * result
+        # sum monomials
+        return tf.reduce_sum(result)
 
 
     def call(self, input, **kwargs):
         aux = []
+        w = tf.get_variable("weigh", [len(self._exponent)], dtype=tf.float32, initializer=tf.random_normal_initializer)
         for i in range(self._final_height):
             for j in range(self._final_width):
-                aux.append( self._compute_filter(input,i,j))
-        output = aux
+                aux.append(self._compute_filter(input, i, j, w))
 
-
-
-
-
-        def work(batch):
-            #Pading
-
-            # calculating all the power of input up to degree
-            power = [tf.constant(np.repeat(1, self._variables), tf.float32)]
-            for _ in range(self._degree):
-                power.append(tf.multiply(power[len(power) - 1], batch))
-
-            # transpose and slice
-            transposedpower = tf.transpose(power)
-            singlepowers = []
-            for i in range(self._variables):
-                singlepowers.append(tf.slice(transposedpower, [i, 0], [1, self._degree + 1]))
-
-            # compute monomials
-            result = np.repeat(1.0, len(self._exponent))
-            for i in range(self._variables):
-                result = result * tf.matmul(singlepowers[i], self._sparcematrix[i])
-
-            with tf.variable_scope("foo"):
-                w = tf.get_variable("weights", [len(self._exponent)], dtype=tf.float32, initializer=tf.initializers.random_normal)
-                result = w * result
-                # sum monomials
-                return tf.reduce_sum(result)
-
-        #output = tf.map_fn(work, input)
-
+        output = tf.reshape(aux, [self._final_height,self._final_width])
         return output
 
 
@@ -98,4 +84,5 @@ output = mylayer.call(input)
 
 with tf.Session() as sess:
     # Run the initializer
-    print(sess.run(output,feed_dict={input: [[[3.1, 1.2], [4.1, 1.2], [5.1,1.2]], [[1.1,1.2], [2.1,2.2], [3.3,1.2]]]}))
+    sess.run(tf.global_variables_initializer())
+    print(sess.run(output,feed_dict={input: [[[3.1], [4.1], [5.1]], [[1.1], [2.1], [3.3]]]}))#[[[3.1, 1.2], [4.1, 1.2], [5.1,1.2]], [[1.1,1.2], [2.1,2.2], [3.3,1.2]]]}))
