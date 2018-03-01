@@ -91,19 +91,19 @@ class Conv2DPolynomial(base.Layer):
   # Reshape X to 4-D tensor: [batch_size, width, height, channels]
   # MNIST images are 28x28 pixels, and have one color channel
 
-X = tf.placeholder(dtype=tf.float32)
+#X = tf.placeholder(dtype=tf.float32)
 
-input_layer = tf.reshape(X, [-1, 28, 28, 1])
+#input_layer = tf.reshape(X, [-1, 28, 28, 1])
 
-myconv = Conv2DPolynomial(name="conv1",filters=32, channels =1,
-                            kernel_size=[5, 5], padding="same", activation=tf.nn.relu, degree=1,
-                            final_width=28, final_height=28, input_width=28, input_height=28)# output = mylayer.call(input)
+#myconv = Conv2DPolynomial(name="conv1",filters=32, channels =1,
+#                            kernel_size=[5, 5], padding="same", activation=tf.nn.relu, degree=1,
+#                            final_width=28, final_height=28, input_width=28, input_height=28)# output = mylayer.call(input)
 
-print("layer created")
-output = myconv.call(input_layer)
-with tf.Session() as sess:
+#print("layer created")
+#output = myconv.call(input_layer)
+#with tf.Session() as sess:
 # Run the initializer
-    sess.run(tf.global_variables_initializer())
-    mnist = tf.contrib.learn.datasets.load_dataset("mnist")
-    train_data = mnist.train.images  # Returns np.array
-    print(sess.run(output,feed_dict={X:  train_data[0:2]}))#[[[[3.1], [4.1], [5.1]], [[1.1], [2.1], [3.3]]]]}))#[[[3.1, 1.2], [4.1, 1.2], [5.1,1.2]], [[1.1,1.2], [2.1,2.2], [3.3,1.2]]]}))
+#    sess.run(tf.global_variables_initializer())
+#    mnist = tf.contrib.learn.datasets.load_dataset("mnist")
+#    train_data = mnist.train.images  # Returns np.array
+#    print(sess.run(output,feed_dict={X:  train_data[0:2]}))#[[[[3.1], [4.1], [5.1]], [[1.1], [2.1], [3.3]]]]}))#[[[3.1, 1.2], [4.1, 1.2], [5.1,1.2]], [[1.1,1.2], [2.1,2.2], [3.3,1.2]]]}))
