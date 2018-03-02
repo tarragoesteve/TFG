@@ -43,51 +43,53 @@ class Conv2DPolynomial(base.Layer):
         if y >= self._input_height: return False
         return True
 
-    def _compute_filter(self, input,x,y):
-        variables = []
-        for i in range(x-self._kernel_size[1]/2,x+1+self._kernel_size[1]/2):
-            for j in range(y-self._kernel_size[0]/2,y+1+self._kernel_size[0]/2):
-                if self._inside_input(x,y):
-                    variables.append(input[x][y][:])
-                else:
-                    variables.append(np.repeat(0,self._channels))
+    def _compute_filter(self, variables):
         flatvar = tf.reshape(variables,[-1])
         # calculating all the power of input up to degree
         power = [tf.constant(np.repeat(1, self._variables), tf.float32)]
         for _ in range(self._degree):
             power.append(tf.multiply(power[len(power) - 1], flatvar))
 
-        result = []
-        for exp in self._exponent:
-            res = 1
-            for index in range(self._variables):
-                res *= power[exp[index]][index]
-            result.append(res)
+        #result = []
+        #for exp in self._exponent:
+        #    res = 1
+        #    for index in range(self._variables):
+        #        res *= power[exp[index]][index]
+        #    result.append(res)
         #
 
         # transpose and slice
-        #transposedpower = tf.transpose(power)
-        #singlepowers = []
-        #for i in range(self._variables):
-        #    singlepowers.append(tf.slice(transposedpower, [i, 0], [1, self._degree + 1]))
+        transposedpower = tf.transpose(power)
+        singlepowers = []
+        for i in range(self._variables):
+            singlepowers.append(tf.slice(transposedpower, [i, 0], [1, self._degree + 1]))
 
         # compute monomials
-        #result = np.repeat(1.0, len(self._exponent))
-        #for i in range(self._variables):
-        #    result = result * tf.matmul(singlepowers[i], self._sparcematrix[i])
+        result = np.repeat(1.0, len(self._exponent))
+        for i in range(self._variables):
+            result = result * tf.matmul(singlepowers[i], self._sparcematrix[i])
         ret = []
         for w_variable in self._weights:
             ret.append(tf.reduce_sum(result*w_variable))
         return ret
 
     def _for_batch(self, input):
-        aux = []
-        for i in range(self._final_height):
+        allvariables = []
+        for x in range(self._final_height):
             for j in range(self._final_width):
-                aux.append(self._compute_filter(input, i, j))
+                variables = []
+                for y in range(x - self._kernel_size[1] / 2, x + 1 + self._kernel_size[1] / 2):
+                    for j in range(y - self._kernel_size[0] / 2, y + 1 + self._kernel_size[0] / 2):
+                        if self._inside_input(x, y):
+                            variables.append(input[x][y][:])
+                        else:
+                            variables.append(np.repeat(0, self._channels))
+                allvariables.append(tf.reshape(variables, [-1]))
 
-        aux = self._activation(aux)
-        output = tf.reshape(aux, [self._final_height,self._final_width,self._filters])
+
+        mapped = tf.map_fn(self._compute_filter(),allvariables)
+        auxi = self._activation(mapped)
+        output = tf.reshape(auxi, [self._final_height,self._final_width,self._filters])
         return output
 
     def call(self, input, **kwargs):
