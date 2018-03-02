@@ -87,7 +87,7 @@ class Conv2DPolynomial(base.Layer):
                 allvariables.append(tf.reshape(variables, [-1]))
 
 
-        mapped = tf.map_fn(self._compute_filter(),allvariables)
+        mapped = tf.map_fn(self._compute_filter,allvariables)
         auxi = self._activation(mapped)
         output = tf.reshape(auxi, [self._final_height,self._final_width,self._filters])
         return output
