@@ -9,8 +9,13 @@ The number of variables of the layer is equal to the number of monomials up to d
 Some results:
 
 N=25 D=2: 351
+
 N=25 D=3: 3276
-N=800 D=2: 321201
-N=800 D=3: 85974801
-For mor information on monomials: https://en.wikipedia.org/wiki/Monomial
+
+N=800 D=2: 321,201
+
+N=800 D=3: 85,974,801
+
+For more information on monomials: https://en.wikipedia.org/wiki/Monomial
+
 This is the reason why we will start focusing on small number of inputs as filters and see if higher polynomial degree benefits the overall results.
