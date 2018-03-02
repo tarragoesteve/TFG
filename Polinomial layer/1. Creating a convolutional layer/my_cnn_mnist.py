@@ -59,16 +59,16 @@ def cnn_model_fn(features, labels, mode):
   # Padding is added to preserve width and height.
   # Input Tensor Shape: [batch_size, 14, 14, 32]
   # Output Tensor Shape: [batch_size, 14, 14, 64]
-  myconv2 = Conv2DPolynomial(filters=64,name="conv2",channels = 32, kernel_size=[5, 5], padding="same",
-                             activation=tf.nn.relu, degree=2, final_width=28, final_height=28, input_width=28, input_height=28)
-  conv2 = myconv2.call(pool1)
+  #myconv2 = Conv2DPolynomial(filters=64,name="conv2",channels = 32, kernel_size=[5, 5], padding="same",
+  #                           activation=tf.nn.relu, degree=2, final_width=28, final_height=28, input_width=28, input_height=28)
+  #conv2 = myconv2.call(pool1)
 
-  # conv2 = tf.layers.conv2d(
-  #     inputs=pool1,
-  #     filters=64,
-  #     kernel_size=[5, 5],
-  #     padding="same",
-  #     activation=tf.nn.relu)
+  conv2 = tf.layers.conv2d(
+      inputs=pool1,
+      filters=64,
+      kernel_size=[5, 5],
+      padding="same",
+      activation=tf.nn.relu)
 
   # Pooling Layer #2
   # Second max pooling layer with a 2x2 filter and stride of 2
@@ -167,8 +167,8 @@ def main(unused_argv):
   with tf.variable_scope("foo", reuse=True):
       for i in range(32):
           print(tf.get_variable("conv1"+"w"+str(i)))
-      for i in range(64):
-          print(tf.get_variable("conv2"+"w"+str(i)))
+      #for i in range(64):
+          #print(tf.get_variable("conv2"+"w"+str(i)))
 
 
 if __name__ == "__main__":
