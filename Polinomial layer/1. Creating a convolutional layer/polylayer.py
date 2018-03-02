@@ -19,8 +19,8 @@ class Conv2DPolynomial(base.Layer):
         self._input_width = input_width
         self._input_height = input_height
         self._exponent = exponents.uptodegree(self._variables, self._degree)
-        self._sparcematrix = [];
-        self._weights = [];
+        self._sparcematrix = []
+        self._weights = []
         with tf.variable_scope("foo"):
             for i in range(self._filters):
                 self._weights.append(tf.get_variable(name+"w"+str(i), [len(self._exponent)], dtype=tf.float32, initializer=tf.random_normal_initializer))
@@ -31,7 +31,7 @@ class Conv2DPolynomial(base.Layer):
             for j in range(len(self._exponent)):
                 a = self._exponent[j][i]
                 self._sparcematrix[i][a][j] = np.float32(1.0)
-        print("Number of monomials:" +str(len(self._exponent)))
+        print("Number of monomials:" + str(len(self._exponent)))
 
     def build(self, _):
         pass
@@ -79,15 +79,14 @@ class Conv2DPolynomial(base.Layer):
             for j in range(self._final_width):
                 variables = []
                 for y in range(x - self._kernel_size[1] / 2, x + 1 + self._kernel_size[1] / 2):
-                    for j in range(y - self._kernel_size[0] / 2, y + 1 + self._kernel_size[0] / 2):
+                    for j in range(y - self._kernel_size[0] / 2, y + 1    + self._kernel_size[0] / 2):
                         if self._inside_input(x, y):
                             variables.append(input[x][y][:])
                         else:
                             variables.append(np.repeat(0, self._channels))
                 allvariables.append(tf.reshape(variables, [-1]))
-
-
-        mapped = tf.map_fn(self._compute_filter,allvariables)
+        print (allvariables)
+        mapped = map(self._compute_filter, allvariables)#tf.map_fn(self._compute_filter, allvariables)
         auxi = self._activation(mapped)
         output = tf.reshape(auxi, [self._final_height,self._final_width,self._filters])
         return output
