@@ -60,7 +60,7 @@ class Conv2DPolynomial(base.Layer):
         result = []
         for exp in self._exponent:
             res = 1
-            for index in range(len(self._variables)):
+            for index in range(self._variables):
                 res *= power[exp[index]][index]
             result.append(res)
 
