@@ -6,4 +6,11 @@ The number of variables of the layer is equal to the number of monomials up to d
 
 #variables = ![alt text](https://wikimedia.org/api/rest_v1/media/math/render/svg/5b2d96856677a9b9f5d9f3d67b52b0d5be22f8f7)
 
+Some results:
+
+N=25 D=2: 351
+N=25 D=3: 3276
+N=800 D=2: 321201
+N=800 D=3: 85974801
 For mor information on monomials: https://en.wikipedia.org/wiki/Monomial
+This is the reason why we will start focusing on small number of inputs as filters and see if higher polynomial degree benefits the overall results.
