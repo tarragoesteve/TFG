@@ -57,16 +57,23 @@ class Conv2DPolynomial(base.Layer):
         for _ in range(self._degree):
             power.append(tf.multiply(power[len(power) - 1], flatvar))
 
+        result = []
+        for exp in self._exponent:
+            res = 1
+            for index in range(len(self._variables)):
+                res *= power[exp[index]][index]
+            result.append(res)
+
         # transpose and slice
-        transposedpower = tf.transpose(power)
-        singlepowers = []
-        for i in range(self._variables):
-            singlepowers.append(tf.slice(transposedpower, [i, 0], [1, self._degree + 1]))
+        #transposedpower = tf.transpose(power)
+        #singlepowers = []
+        #for i in range(self._variables):
+        #    singlepowers.append(tf.slice(transposedpower, [i, 0], [1, self._degree + 1]))
 
         # compute monomials
-        result = np.repeat(1.0, len(self._exponent))
-        for i in range(self._variables):
-            result = result * tf.matmul(singlepowers[i], self._sparcematrix[i])
+        #result = np.repeat(1.0, len(self._exponent))
+        #for i in range(self._variables):
+        #    result = result * tf.matmul(singlepowers[i], self._sparcematrix[i])
         ret = []
         for w_variable in self._weights:
             ret.append(tf.reduce_sum(result*w_variable))
