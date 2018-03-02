@@ -63,6 +63,7 @@ class Conv2DPolynomial(base.Layer):
             for index in range(self._variables):
                 res *= power[exp[index]][index]
             result.append(res)
+        #
 
         # transpose and slice
         #transposedpower = tf.transpose(power)
