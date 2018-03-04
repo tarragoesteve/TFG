@@ -75,17 +75,17 @@ class Conv2DPolynomial(base.Layer):
     def _for_batch(self, input):
         allvariables = []
         for x in range(self._final_height):
-            for j in range(self._final_width):
+            for y in range(self._final_width):
                 variables = []
-                for y in range(x - self._kernel_size[1] / 2, x + 1 + self._kernel_size[1] / 2):
-                    for j in range(y - self._kernel_size[0] / 2, y + 1    + self._kernel_size[0] / 2):
-                        if self._inside_input(x, y):
-                            variables.append(input[x][y][:])
+                for i in range(x - self._kernel_size[1] / 2, x + 1 + self._kernel_size[1] / 2):
+                    for j in range(y - self._kernel_size[0] / 2, y + 1 + self._kernel_size[0] / 2):
+                        if self._inside_input(i, j):
+                            variables.append(input[i][j][:])
                         else:
                             variables.append(np.repeat(0, self._channels))
                 allvariables.append(tf.reshape(variables, [-1]))
-        print (allvariables)
-        mapped = map(self._compute_filter, allvariables)#tf.map_fn(self._compute_filter, allvariables)
+
+        mapped = tf.map_fn(self._compute_filter, allvariables, dtype=tf.float32)
         auxi = self._activation(mapped)
         output = tf.reshape(auxi, [self._final_height,self._final_width,self._filters])
         return output
