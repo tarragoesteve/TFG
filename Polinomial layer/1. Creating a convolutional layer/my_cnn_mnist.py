@@ -37,7 +37,7 @@ def cnn_model_fn(features, labels, mode):
   # Input Tensor Shape: [batch_size, 28, 28, 1]
   # Output Tensor Shape: [batch_size, 28, 28, 32]
   myconv = Conv2DPolynomial(name="conv1",filters=32, channels=1,
-                            kernel_size=[5, 5], padding="same", activation=tf.nn.relu, degree=2,
+                            kernel_size=[5, 5], padding="same", activation=tf.nn.relu, degree=1,
                             final_width=28, final_height=28, input_width=28, input_height=28)
   conv1 = myconv.call(input_layer)
 
@@ -148,11 +148,11 @@ def main(unused_argv):
       x={"x": train_data},
       y=train_labels,
       batch_size=100,
-      num_epochs=None,
+      num_epochs=10,
       shuffle=True)
   mnist_classifier.train(
       input_fn=train_input_fn,
-      steps=2,#0000,
+      steps=10,
       hooks=[logging_hook])
 
   # Evaluate the model and print results
