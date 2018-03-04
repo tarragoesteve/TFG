@@ -82,7 +82,7 @@ class Conv2DPolynomial(base.Layer):
                         if self._inside_input(i, j):
                             variables.append(input[i][j][:])
                         else:
-                            variables.append(np.repeat(0, self._channels))
+                            variables.append(np.repeat(float(0.0), self._channels))
                 allvariables.append(tf.reshape(variables, [-1]))
 
         allvariables = tf.reshape(allvariables, shape=[None, self._variables])
