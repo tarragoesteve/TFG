@@ -165,7 +165,7 @@ def main(unused_argv):
   print(eval_results)
 
   with tf.variable_scope("foo", reuse=True):
-          print(tf.get_variable("conv1_weights")
+          print(tf.get_variable("conv1_weights"))
 
 if __name__ == "__main__":
   tf.app.run()
