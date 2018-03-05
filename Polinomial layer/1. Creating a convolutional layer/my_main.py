@@ -16,6 +16,7 @@ batch_size = 100
 
 X = tf.placeholder(tf.float32)
 labels = tf.placeholder(tf.int32)
+mode = tf.placeholder(tf.string)
 
 """Model function for CNN."""
   # Input Layer
@@ -80,8 +81,7 @@ pool2_flat = tf.reshape(pool2, [-1, 7 * 7 * 64])
 dense = tf.layers.dense(inputs=pool2_flat, units=1024, activation=tf.nn.relu)
 
   # Add dropout operation; 0.6 probability that element will be kept
-dropout = tf.layers.dropout(
-      inputs=dense, rate=0.4, training=mode == tf.estimator.ModeKeys.TRAIN)
+dropout = tf.layers.dropout(inputs=dense, rate=0.4, training=mode == tf.estimator.ModeKeys.TRAIN)
 
   # Logits layer
   # Input Tensor Shape: [batch_size, 1024]
@@ -122,10 +122,10 @@ with tf.Session() as sess:
         for batch in range(len(train_data)/batch_size):
             X_batch = train_data[batch_size*batch:batch_size*(batch+1)]
             Y_batch = train_labels[batch_size*batch:batch_size*(batch+1)]
-            sess.run(optimizer, feed_dict={X: X_batch, labels: Y_batch})
+            sess.run(optimizer, feed_dict={X: X_batch, mode: tf.estimator.ModeKeys.TRAIN, labels: Y_batch})
         # Display logs per epoch step
         if (epoch+1) % display_step == 0:
-            c = sess.run(loss, feed_dict={X: train_data, labels: train_labels})
+            c = sess.run(loss, feed_dict={X: train_data, mode: tf.estimator.ModeKeys.EVAL, labels: train_labels})
             print("Epoch:", '%04d' % (epoch+1), "cost=", "{:.9f}".format(c), "weights= ",sess.run(tf.get_variable("my_weights")))
             fh.write(sess.run(tf.get_variable("my_weights")))
 
