@@ -123,6 +123,7 @@ with tf.Session() as sess:
             X_batch = train_data[batch_size*batch:batch_size*(batch+1)]
             Y_batch = train_labels[batch_size*batch:batch_size*(batch+1)]
             sess.run(optimizer, feed_dict={X: X_batch, mode: tf.estimator.ModeKeys.TRAIN, labels: Y_batch})
+            print("Batch")
         # Display logs per epoch step
         if (epoch+1) % display_step == 0:
             c = sess.run(loss, feed_dict={X: train_data, mode: tf.estimator.ModeKeys.EVAL, labels: train_labels})
