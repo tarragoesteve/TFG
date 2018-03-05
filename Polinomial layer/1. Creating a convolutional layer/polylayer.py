@@ -34,15 +34,8 @@ class Conv2DPolynomial(base.Layer):
     def build(self, _):
         pass
 
-    def _inside_input(self, x, y):
-        if x < 0 : return False
-        if y < 0 : return False
-        if x >= self._input_width: return False
-        if y >= self._input_height: return False
-        return True
-
     def _compute_filter(self, variables):
-        # calculating all the power of input up to degree #TODO: apply scan to this part
+        # calculating all the power of input up to degree
         power = [tf.constant(np.repeat(1, self._variables), tf.float32)]
         for _ in range(self._degree):
             power.append(tf.multiply(power[len(power) - 1], variables))
@@ -66,7 +59,7 @@ class Conv2DPolynomial(base.Layer):
         patches = tf.extract_image_patches(images=input,ksizes=[1,self._kernel_size[1],self._kernel_size[0], self._channels], strides=[1, self._stride_rows, self._stride_cols, 1], rates=[1,1,1,1], padding=self._padding)
         ksize = self._kernel_size[1] * self._kernel_size[0] * self._channels
         reshaped = tf.reshape(tensor=patches, shape=[-1, ksize])
-        return tf.reshape(tensor=tf.map_fn(fn=self._compute_filter,elems=reshaped,parallel_iterations=250), shape=[-1, self._final_height, self._final_width, self._filters])
+        return tf.reshape(tensor=tf.map_fn(fn=self._compute_filter,elems=reshaped,parallel_iterations=10000), shape=[-1, self._final_height, self._final_width, self._filters])
 
 
 

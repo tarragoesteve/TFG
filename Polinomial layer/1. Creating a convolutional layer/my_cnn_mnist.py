@@ -135,13 +135,14 @@ def main(unused_argv):
 
   # Create the Estimator
   mnist_classifier = tf.estimator.Estimator(
-      model_fn=cnn_model_fn, model_dir="/tmp/mnist_convnet_model2")
+      model_fn=cnn_model_fn, model_dir="/tmp/mnist_convnet_model324")
 
   # Set up logging for predictions
   # Log the values in the "Softmax" tensor with label "probabilities"
   tensors_to_log = {"probabilities": "softmax_tensor", "weights": "my_weights"}
   logging_hook = tf.train.LoggingTensorHook(
       tensors=tensors_to_log, every_n_iter=1)
+  tf.logging.set_verbosity(v=)
 
   # Train the model
   train_input_fn = tf.estimator.inputs.numpy_input_fn(
