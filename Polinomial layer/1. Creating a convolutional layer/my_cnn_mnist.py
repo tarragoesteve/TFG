@@ -37,7 +37,7 @@ def cnn_model_fn(features, labels, mode):
   # Input Tensor Shape: [batch_size, 28, 28, 1]
   # Output Tensor Shape: [batch_size, 28, 28, 32]
   myconv = Conv2DPolynomial(name="conv1",filters=32, channels=1,
-                            kernel_size=[5, 5], padding="SAME", activation=tf.nn.relu, degree=1,
+                            kernel_size=[5, 5], padding="SAME", activation=tf.nn.relu, degree=2,
                             final_width=28, final_height=28, input_width=28, input_height=28)
   conv1 = myconv.call(input_layer)
 
@@ -111,7 +111,7 @@ def cnn_model_fn(features, labels, mode):
 
   # Configure the Training Op (for TRAIN mode)
   if mode == tf.estimator.ModeKeys.TRAIN:
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.01)
     train_op = optimizer.minimize(
         loss=loss,
         global_step=tf.train.get_global_step())
