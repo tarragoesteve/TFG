@@ -42,7 +42,7 @@ class Conv2DPolynomial(base.Layer):
         return True
 
     def _compute_filter(self, variables):
-        # calculating all the power of input up to degree
+        # calculating all the power of input up to degree #TODO: apply scan to this part
         power = [tf.constant(np.repeat(1, self._variables), tf.float32)]
         for _ in range(self._degree):
             power.append(tf.multiply(power[len(power) - 1], variables))
@@ -52,13 +52,13 @@ class Conv2DPolynomial(base.Layer):
         for i in range(self._variables):
             singlepowers.append(tf.slice(transposedpower, [i, 0], [1, self._degree + 1]))
 
-        # compute monomials
+        # compute monomials #TODO: apply scan to this part
         result = np.repeat(1.0, len(self._exponent))
         for i in range(self._variables):
             result = result * tf.matmul(singlepowers[i], self._sparcematrix[i])
 
-        #multiply monomials per weights
-        return tf.reduce_sum(result*self._weights, 1)
+        #multiply monomials per weights and apply activation function
+        return self._activation(tf.reduce_sum(result*self._weights, 1))
 
     def call(self, input, **kwargs):
         #Input = [batch, height, width, chanels]
