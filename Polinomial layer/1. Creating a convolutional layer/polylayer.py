@@ -22,9 +22,7 @@ class Conv2DPolynomial(base.Layer):
         self._input_height = input_height
         self._exponent = exponents.uptodegree(self._variables, self._degree)
         self._sparcematrix = []
-        with tf.variable_scope("foo"):
-            self._weights = tf.get_variable(name + "_weights", [self._filters, len(self._exponent)],
-                                            dtype=tf.float32, initializer=tf.random_normal_initializer )
+        self._weights = tf.get_variable("my_weights", [self._filters, len(self._exponent)],dtype=tf.float32, initializer=tf.random_normal_initializer)
         for i in range(self._variables):
             #tf.SparseTensor(indices=,values=np.repeat(1,),dense_shape=[len(self._exponent)])
             self._sparcematrix.append(np.zeros(((self._degree + 1), len(self._exponent)), dtype=np.dtype('float32')))

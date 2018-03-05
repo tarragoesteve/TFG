@@ -139,7 +139,7 @@ def main(unused_argv):
 
   # Set up logging for predictions
   # Log the values in the "Softmax" tensor with label "probabilities"
-  tensors_to_log = {"probabilities": "softmax_tensor"}
+  tensors_to_log = {"probabilities": "softmax_tensor", "weights": "my_weights"}
   logging_hook = tf.train.LoggingTensorHook(
       tensors=tensors_to_log, every_n_iter=1)
 
@@ -163,9 +163,6 @@ def main(unused_argv):
       shuffle=False)
   eval_results = mnist_classifier.evaluate(input_fn=eval_input_fn)
   print(eval_results)
-
-  with tf.variable_scope("foo", reuse=True):
-          print(tf.get_variable("conv1_weights"))
 
 if __name__ == "__main__":
   tf.app.run()
