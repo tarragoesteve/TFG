@@ -66,7 +66,7 @@ class Conv2DPolynomial(base.Layer):
         patches = tf.extract_image_patches(images=input,ksizes=[1,self._kernel_size[1],self._kernel_size[0], self._channels], strides=[1, self._stride_rows, self._stride_cols, 1], rates=[1,1,1,1], padding=self._padding)
         ksize = self._kernel_size[1] * self._kernel_size[0] * self._channels
         reshaped = tf.reshape(tensor=patches, shape=[-1, ksize])
-        return tf.reshape(tensor=tf.map_fn(fn=self._compute_filter,elems=reshaped), shape=[-1, self._final_height, self._final_width, self._filters])
+        return tf.reshape(tensor=tf.map_fn(fn=self._compute_filter,elems=reshaped,parallel_iterations=250), shape=[-1, self._final_height, self._final_width, self._filters])
 
 
 
