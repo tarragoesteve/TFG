@@ -12,7 +12,7 @@ from polylayer import Conv2DPolynomial
 learning_rate = 0.001
 training_epochs = 1000
 display_step = 1
-batch_size = 100
+batch_size = 1000
 
 X = tf.placeholder(tf.float32)
 labels = tf.placeholder(tf.int32)
@@ -99,7 +99,7 @@ predictions = {
 loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
 
 #Declaring optimizer
-optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss=loss)
+optimizer = tf.train.AdamOptimizer(letarning_rate=learning_rate).minimize(loss=loss)
 
 # Initialize the variables (i.e. assign their default value)
 init = tf.global_variables_initializer()

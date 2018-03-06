@@ -22,7 +22,7 @@ class Conv2DPolynomial(base.Layer):
         self._input_height = input_height
         self._exponent = exponents.uptodegree(self._variables, self._degree)
         self._sparcematrix = []
-        self._weights = tf.get_variable("my_weights", [self._filters, len(self._exponent)],dtype=tf.float32, initializer=tf.random_normal_initializer)
+        self._weights = tf.get_variable("my_weights", [len(self._exponent),self._filters],dtype=tf.float32, initializer=tf.random_normal_initializer)
         for i in range(self._variables):
             #tf.SparseTensor(indices=,values=np.repeat(1,),dense_shape=[len(self._exponent)])
             self._sparcematrix.append(np.zeros(((self._degree + 1), len(self._exponent)), dtype=np.dtype('float32')))
@@ -40,18 +40,27 @@ class Conv2DPolynomial(base.Layer):
         for _ in range(self._degree):
             power.append(tf.multiply(power[len(power) - 1], variables))
 
-        transposedpower = tf.transpose(power)
-        singlepowers = []
-        for i in range(self._variables):
-            singlepowers.append(tf.slice(transposedpower, [i, 0], [1, self._degree + 1]))
 
-        # compute monomials #TODO: apply scan to this part
-        result = np.repeat(1.0, len(self._exponent))
+
+
+        #power is a tensor of shape [degree, variables]
+
+        transposedpower = tf.transpose(power, name="transposing_power")
+        #trasnposed power is a tensor of shape [variables, degree]
+
+
+        # compute monomials
+        result = np.repeat(np.float32(1.0), len(self._exponent))
+
         for i in range(self._variables):
-            result = result * tf.matmul(singlepowers[i], self._sparcematrix[i])
+            poweofvariable = tf.reshape(transposedpower[i][:],shape=[1,-1])
+            result = result * tf.matmul(poweofvariable, self._sparcematrix[i], name="computing_var_"+str(i))
+        #result contains all the monomials and has shape [1,len(self._exponent)]
+        return result[0][0:2]
 
         #multiply monomials per weights and apply activation function
-        return self._activation(tf.reduce_sum(result*self._weights, 1))
+        return self._activation(tf.matmul(result,self._weights), name="Activation")
+
 
     def call(self, input, **kwargs):
         #Input = [batch, height, width, chanels]
@@ -59,7 +68,7 @@ class Conv2DPolynomial(base.Layer):
         patches = tf.extract_image_patches(images=input,ksizes=[1,self._kernel_size[1],self._kernel_size[0], self._channels], strides=[1, self._stride_rows, self._stride_cols, 1], rates=[1,1,1,1], padding=self._padding)
         ksize = self._kernel_size[1] * self._kernel_size[0] * self._channels
         reshaped = tf.reshape(tensor=patches, shape=[-1, ksize])
-        return tf.reshape(tensor=tf.map_fn(fn=self._compute_filter,elems=reshaped,parallel_iterations=10000), shape=[-1, self._final_height, self._final_width, self._filters])
+        return tf.reshape(tensor=tf.map_fn(fn=self._compute_filter,elems=reshaped,parallel_iterations=100), shape=[-1, self._final_height, self._final_width, self._filters])
 
 
 
@@ -67,19 +76,18 @@ class Conv2DPolynomial(base.Layer):
   # Reshape X to 4-D tensor: [batch_size, width, height, channels]
   # MNIST images are 28x28 pixels, and have one color channel
 
-# X = tf.placeholder(dtype=tf.float32)
+X = tf.placeholder(dtype=tf.float32)
 #
-# input_layer = tf.reshape(X, [-1, 28, 28, 1])
+input_layer = tf.reshape(X, [-1, 28, 28, 1])
 #
-# myconv = Conv2DPolynomial(name="conv1",filters=32, channels =1,
-#                             kernel_size=[5, 5], padding="SAME", activation=tf.nn.relu, degree=1,
-#                             final_width=28, final_height=28, input_width=28, input_height=28)# output = mylayer.call(input)
+myconv = Conv2DPolynomial(name="conv1",filters=2, channels =1,kernel_size=[5, 5], padding="SAME", activation=tf.nn.relu, degree=1, final_width=28, final_height=28, input_width=28, input_height=28)# output = mylayer.call(input)
 #
 # print("layer created")
-# output = myconv.call(input_layer)
-# with tf.Session() as sess:
-# # Run the initializer
-#     sess.run(tf.global_variables_initializer())
-#     mnist = tf.contrib.learn.datasets.load_dataset("mnist")
-#     train_data = mnist.train.images  # Returns np.array
-#     print(sess.run(output,feed_dict={X:  train_data[0:50]}))#[[[[3.1], [4.1], [5.1]], [[1.1], [2.1], [3.3]]]]}))#[[[3.1, 1.2], [4.1, 1.2], [5.1,1.2]], [[1.1,1.2], [2.1,2.2], [3.3,1.2]]]}))
+output = myconv.call(input_layer)
+with tf.Session() as sess:
+    sess.run(tf.global_variables_initializer())
+    mnist = tf.contrib.learn.datasets.load_dataset("mnist")
+    train_data = mnist.train.images  # Returns np.array
+    writer = tf.summary.FileWriter("/tmp/poly/", sess.graph)
+
+    print(sess.run(output,feed_dict={X:  train_data[0:100]}))#[[[[3.1], [4.1], [5.1]], [[1.1], [2.1], [3.3]]]]}))#[[[3.1, 1.2], [4.1, 1.2], [5.1,1.2]], [[1.1,1.2], [2.1,2.2], [3.3,1.2]]]}))

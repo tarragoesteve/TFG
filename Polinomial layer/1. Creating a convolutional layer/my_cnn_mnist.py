@@ -142,7 +142,7 @@ def main(unused_argv):
   tensors_to_log = {"probabilities": "softmax_tensor", "weights": "my_weights"}
   logging_hook = tf.train.LoggingTensorHook(
       tensors=tensors_to_log, every_n_iter=1)
-  tf.logging.set_verbosity(v=)
+  #tf.logging.set_verbosity(v=)
 
   # Train the model
   train_input_fn = tf.estimator.inputs.numpy_input_fn(
