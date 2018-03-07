@@ -9,10 +9,10 @@ import numpy as np
 from polylayer import Conv2DPolynomial
 
 # Parameters
-learning_rate = 0.001
-training_epochs = 1000
+learning_rate = 0.01
+training_epochs = 100
 display_step = 1
-batch_size = 1000
+batch_size = 100
 
 X = tf.placeholder(tf.float32)
 labels = tf.placeholder(tf.int32)
@@ -122,9 +122,8 @@ with tf.Session() as sess:
         for batch in range(len(train_data)/batch_size):
             X_batch = train_data[batch_size*batch:batch_size*(batch+1)]
             Y_batch = train_labels[batch_size*batch:batch_size*(batch+1)]
-            print("Starting batch")
+            print("batch:"+ batch + "/" + len(train_data)/batch_size)
             sess.run(optimizer, feed_dict={X: X_batch, mode: tf.estimator.ModeKeys.TRAIN, labels: Y_batch})
-            print("Batch")
         # Display logs per epoch step
         if (epoch+1) % display_step == 0:
             c = sess.run(loss, feed_dict={X: train_data, mode: tf.estimator.ModeKeys.EVAL, labels: train_labels})
@@ -132,5 +131,3 @@ with tf.Session() as sess:
             fh.write(sess.run(tf.get_variable("my_weights")))
 
     fh.close()
-
-
