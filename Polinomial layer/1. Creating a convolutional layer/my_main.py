@@ -99,7 +99,7 @@ predictions = {
 loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
 
 #Declaring optimizer
-optimizer = tf.train.AdamOptimizer(letarning_rate=learning_rate).minimize(loss=loss)
+optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss=loss)
 
 # Initialize the variables (i.e. assign their default value)
 init = tf.global_variables_initializer()
@@ -122,7 +122,7 @@ with tf.Session() as sess:
         for batch in range(len(train_data)/batch_size):
             X_batch = train_data[batch_size*batch:batch_size*(batch+1)]
             Y_batch = train_labels[batch_size*batch:batch_size*(batch+1)]
-            print("batch:"+ batch + "/" + len(train_data)/batch_size)
+            print("batch:"+ str(batch) + "/" + str(len(train_data)/batch_size))
             sess.run(optimizer, feed_dict={X: X_batch, mode: tf.estimator.ModeKeys.TRAIN, labels: Y_batch})
         # Display logs per epoch step
         if (epoch+1) % display_step == 0:
