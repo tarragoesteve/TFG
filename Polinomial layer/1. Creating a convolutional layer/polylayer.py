@@ -22,7 +22,8 @@ class Conv2DPolynomial(base.Layer):
         self._input_height = input_height
         self._exponent = exponents.uptodegree(self._variables, self._degree)
         self._sparcematrix = []
-        self._weights = tf.get_variable("my_weights", [len(self._exponent),self._filters],dtype=tf.float32, initializer=tf.random_normal_initializer)
+        with tf.variable_scope("conv1"):
+            self._weights = tf.get_variable("my_weights", [len(self._exponent),self._filters],dtype=tf.float32, initializer=tf.random_normal_initializer)
         for i in range(self._variables):
             #tf.SparseTensor(indices=,values=np.repeat(1,),dense_shape=[len(self._exponent)])
             self._sparcematrix.append(np.zeros(((self._degree + 1), len(self._exponent)), dtype=np.dtype('float32')))
@@ -40,9 +41,6 @@ class Conv2DPolynomial(base.Layer):
         for _ in range(self._degree):
             power.append(tf.multiply(power[len(power) - 1], variables))
 
-
-
-
         #power is a tensor of shape [degree, variables]
 
         transposedpower = tf.transpose(power, name="transposing_power")
@@ -58,7 +56,8 @@ class Conv2DPolynomial(base.Layer):
         #result contains all the monomials and has shape [1,len(self._exponent)]
 
         #multiply monomials per weights and apply activation function
-        return self._activation(tf.matmul(result,self._weights), name="Activation")
+        with tf.variable_scope("conv1", reuse=True):
+            return self._activation(tf.matmul(result,tf.get_variable("my_weights")), name="Activation")
 
 
     def call(self, input, **kwargs):
@@ -67,6 +66,7 @@ class Conv2DPolynomial(base.Layer):
         patches = tf.extract_image_patches(images=input,ksizes=[1,self._kernel_size[1],self._kernel_size[0], self._channels], strides=[1, self._stride_rows, self._stride_cols, 1], rates=[1,1,1,1], padding=self._padding)
         ksize = self._kernel_size[1] * self._kernel_size[0] * self._channels
         reshaped = tf.reshape(tensor=patches, shape=[-1, ksize])
+        #reshaped
         return tf.reshape(tensor=tf.map_fn(fn=self._compute_filter,elems=reshaped,parallel_iterations=10), shape=[-1, self._final_height, self._final_width, self._filters])
 
 

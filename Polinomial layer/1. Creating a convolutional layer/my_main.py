@@ -114,8 +114,6 @@ with tf.Session() as sess:
     train_data = mnist.train.images  # Returns np.array
     train_labels = np.asarray(mnist.train.labels, dtype=np.int32)
 
-    fh = open("hello.txt", "a")
-
 
     # Fit all training data
     for epoch in range(training_epochs):
@@ -124,10 +122,13 @@ with tf.Session() as sess:
             Y_batch = train_labels[batch_size*batch:batch_size*(batch+1)]
             print("Epoch: "+ str(epoch) + "/"+ str(training_epochs)+ " Batch:"+ str(batch) + "/" + str(len(train_data)/batch_size))
             sess.run(optimizer, feed_dict={X: X_batch, mode: tf.estimator.ModeKeys.TRAIN, labels: Y_batch})
-        # Display logs per epoch step
-        if (epoch+1) % display_step == 0:
-            c = sess.run(loss, feed_dict={X: train_data, mode: tf.estimator.ModeKeys.EVAL, labels: train_labels})
-            print("Epoch:", '%04d' % (epoch+1), "cost=", "{:.9f}".format(c), "weights= ",sess.run(tf.get_variable("my_weights")))
-            fh.write(sess.run(tf.get_variable("my_weights")))
-
-    fh.close()
+            if (batch % 100 == 0):
+                with tf.variable_scope("conv1",reuse=True):
+                    c = sess.run(loss, feed_dict={X: mnist.test.images[0:100], mode: tf.estimator.ModeKeys.EVAL, labels: np.asarray(mnist.test.labels[0:100], dtype=np.int32)})
+                    print("cost=", "{:.9f}".format(c))
+                    np.savetxt("E"+str(epoch)+"B"+str(batch)+ ".csv",sess.run(tf.get_variable("my_weights")), fmt='%.9e', delimiter=', ')
+        with tf.variable_scope("conv1", reuse=True):
+            c = sess.run(loss, feed_dict={X: mnist.test.images[0:100], mode: tf.estimator.ModeKeys.EVAL,
+                                          labels: np.asarray(mnist.test.labels[0:100], dtype=np.int32)})
+            print("Epoch:", '%04d' % (epoch + 1), "cost=", "{:.9f}".format(c))
+            np.savetxt("Epoch" + str(epoch) + ".csv", sess.run(tf.get_variable("my_weights")), fmt='%.9e', delimiter=', ')
