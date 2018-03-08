@@ -30,7 +30,7 @@ input_layer = tf.reshape(X, [-1, 28, 28, 1])
   # Input Tensor Shape: [batch_size, 28, 28, 1]
   # Output Tensor Shape: [batch_size, 28, 28, 32]
 myconv = Conv2DPolynomial(name="conv1",filters=32, channels=1,
-                            kernel_size=[5, 5], padding="SAME", activation=tf.nn.relu, degree=2,
+                            kernel_size=[5, 5], padding="SAME", activation=tf.nn.relu, degree=4,
                             final_width=28, final_height=28, input_width=28, input_height=28)
 conv1 = myconv.call(input_layer)
 
